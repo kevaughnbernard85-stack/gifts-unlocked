@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Gifts Unlocked · Spiritual Gifts in Action</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --fire:#FF5722;--ember:#FF9800;--gold:#FFD700;--glow:#FFD70066;
+  --holy:#00E5FF;--spirit:#7C3AED;--spirit2:#A78BFA;
+  --deep:#080612;--ink:#100C24;--panel:rgba(16,12,36,.92);
+  --border:rgba(255,255,255,.1);--muted:#7765AA;--text:#E8E0FF;
+  --success:#00E676;--warn:#FFB300;
+}
+html,body{height:100%;overflow:hidden;background:var(--deep);font-family:'Rajdhani',sans-serif;color:var(--text);user-select:none}
+#bg{position:fixed;inset:0;z-index:0}
+#stage{position:fixed;inset:0;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+
+/* SCENES */
+.scene{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 16px;opacity:0;pointer-events:none;transition:opacity .45s ease,transform .45s ease;transform:scale(.96);overflow-y:auto}
+.scene.active{opacity:1;pointer-events:all;transform:scale(1)}
+
+/* HUD */
+#hud{position:fixed;top:0;left:0;right:0;z-index:100;height:52px;background:rgba(8,6,18,.96);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;padding:0 14px;transform:translateY(-100%);transition:transform .5s ease;backdrop-filter:blur(12px)}
+#hud.show{transform:translateY(0)}
+.hud-logo{font-family:'Cinzel',serif;font-size:12px;font-weight:700;color:var(--gold);white-space:nowrap;letter-spacing:1px}
+.hud-xp{flex:1;min-width:0}
+.hud-row{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px}
+.xp-rail{height:6px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden}
+.xp-rod{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--spirit),var(--fire),var(--gold));transition:width .8s cubic-bezier(.34,1.56,.64,1);box-shadow:0 0 8px var(--glow)}
+.hud-gems{display:flex;gap:4px}
+.gem{width:26px;height:26px;border-radius:50%;border:1.5px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .3s;filter:grayscale(1) brightness(.45)}
+.gem.lit{filter:none;border-color:var(--gold);box-shadow:0 0 8px var(--glow)}
+.hud-pts{font-family:'Cinzel',serif;font-size:13px;font-weight:700;color:var(--fire);white-space:nowrap}
+
+/* TITLE */
+#s-title{text-align:center;gap:0}
+.t-flame{font-size:70px;filter:drop-shadow(0 0 36px var(--fire));animation:lev 3s ease-in-out infinite}
+@keyframes lev{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-12px) scale(1.06)}}
+.t-tag{font-size:10px;letter-spacing:5px;text-transform:uppercase;color:var(--ember);margin:6px 0 10px;font-weight:600}
+.t-h1{font-family:'Cinzel',serif;font-size:clamp(38px,10vw,74px);font-weight:900;line-height:1;letter-spacing:-1px;
+  background:linear-gradient(160deg,var(--gold) 0%,#fff8d0 40%,var(--ember) 75%,var(--fire) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 4px 18px rgba(255,87,34,.4))}
+.t-sub{font-family:'Cinzel',serif;font-size:clamp(10px,2.5vw,15px);color:var(--spirit2);letter-spacing:4px;text-transform:uppercase;margin:8px 0 18px}
+.t-verse{background:rgba(255,255,255,.04);border:1px solid rgba(255,215,0,.2);border-left:3px solid var(--gold);border-radius:0 12px 12px 0;padding:12px 18px;max-width:460px;font-size:13px;font-style:italic;color:#ccc4f0;line-height:1.7;margin:0 auto 20px;text-align:left}
+.t-verse cite{display:block;margin-top:4px;font-size:11px;color:var(--gold);font-style:normal;font-weight:700;letter-spacing:1px}
+.t-stats{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin-bottom:20px}
+.t-stat{text-align:center}
+.t-stat-n{font-family:'Cinzel',serif;font-size:28px;font-weight:900;color:var(--gold);line-height:1}
+.t-stat-l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-top:2px}
+
+/* NAME */
+#s-name{gap:16px;text-align:center}
+.n-icon{font-size:52px;animation:lev 2.5s ease-in-out infinite}
+.n-h{font-family:'Cinzel',serif;font-size:clamp(18px,5vw,30px);font-weight:700;color:var(--gold)}
+.n-p{font-size:14px;color:var(--muted);max-width:340px;line-height:1.6}
+.n-input{width:100%;max-width:320px;padding:16px 20px;text-align:center;background:rgba(255,255,255,.06);border:2px solid rgba(124,58,237,.4);border-radius:14px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:19px;font-weight:600;outline:none;transition:border-color .2s,box-shadow .2s}
+.n-input:focus{border-color:var(--spirit2);box-shadow:0 0 18px rgba(124,58,237,.28)}
+.n-input::placeholder{color:rgba(255,255,255,.24)}
+
+/* STORY */
+#s-story{text-align:center;gap:0}
+.story-card{max-width:480px;background:var(--panel);border:1px solid rgba(255,215,0,.2);border-radius:20px;padding:26px 22px;margin-bottom:20px;animation:slideUp .6s ease both}
+@keyframes slideUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
+.story-icon{font-size:42px;margin-bottom:10px}
+.story-h{font-family:'Cinzel',serif;font-size:clamp(16px,4vw,22px);font-weight:700;color:var(--gold);margin-bottom:10px;line-height:1.3}
+.story-body{font-size:13.5px;color:#ccc4f0;line-height:1.85}
+.story-body strong{color:var(--gold)}
+.story-body em{color:var(--spirit2);font-style:italic}
+.story-v{display:block;margin-top:12px;font-style:italic;color:var(--spirit2);font-size:12.5px;border-top:1px solid var(--border);padding-top:10px}
+
+/* GAME */
+#s-game{padding-top:58px;justify-content:flex-start;overflow-y:auto}
+.game-wrap{max-width:620px;width:100%;padding:14px 0 50px}
+
+.prog-block{margin-bottom:12px}
+.prog-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
+.prog-rail{height:8px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden;position:relative}
+.prog-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--spirit),var(--fire),var(--gold));transition:width .6s ease;box-shadow:0 0 10px var(--glow)}
+
+.game-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.round-tag{background:rgba(255,87,34,.14);border:1px solid rgba(255,87,34,.3);border-radius:20px;padding:5px 13px;font-size:11px;font-weight:700;color:var(--fire);text-transform:uppercase;letter-spacing:1.5px}
+/* timer */
+.timer-wrap{position:relative;width:46px;height:46px}
+.timer-wrap svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.timer-wrap circle{fill:none;stroke-width:4;stroke-linecap:round;transition:stroke-dashoffset .95s linear}
+.ring-bg{stroke:rgba(255,255,255,.08)}
+.ring-fg{stroke:var(--gold);stroke-dasharray:126;stroke-dashoffset:0}
+.ring-fg.w{stroke:var(--warn)}.ring-fg.d{stroke:var(--fire)}
+.timer-n{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:14px;font-weight:700;color:var(--gold)}
+
+/* challenge card */
+.q-card{background:var(--panel);border:1px solid rgba(255,255,255,.09);border-radius:20px;padding:20px 18px 16px;margin-bottom:12px;box-shadow:0 22px 55px rgba(0,0,0,.5);position:relative;overflow:hidden}
+.q-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--fire),var(--gold),transparent)}
+.q-type{display:flex;align-items:center;gap:6px;margin-bottom:12px}
+.q-dot{width:7px;height:7px;border-radius:50%;background:var(--fire);box-shadow:0 0 7px var(--fire)}
+.q-type-lbl{font-size:10px;font-weight:700;color:var(--fire);text-transform:uppercase;letter-spacing:2px}
+.q-text{font-family:'Cinzel',serif;font-size:clamp(14px,3.2vw,19px);font-weight:600;color:#f0ebff;line-height:1.5}
+
+/* CHOICE CARDS — 2×2 grid, the core mechanic */
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:2px}
+@media(max-width:380px){.choices{grid-template-columns:1fr}}
+.cc{background:rgba(255,255,255,.03);border:2px solid rgba(255,255,255,.09);border-radius:14px;padding:13px 12px;cursor:pointer;transition:all .22s cubic-bezier(.34,1.56,.64,1);display:flex;flex-direction:column;gap:5px;text-align:left;position:relative;overflow:hidden}
+.cc::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.03),transparent);pointer-events:none}
+.cc:hover{border-color:var(--spirit2);background:rgba(124,58,237,.14);transform:translateY(-3px) scale(1.025);box-shadow:0 8px 22px rgba(124,58,237,.28)}
+.cc:active{transform:scale(.97)}
+.cc.picked{border-color:var(--gold);background:rgba(255,215,0,.09);transform:scale(1.025);box-shadow:0 0 18px var(--glow)}
+.cc.locked{pointer-events:none}
+.cc.locked:not(.picked){opacity:.42}
+.cc-icon{font-size:22px}
+.cc-text{font-size:12.5px;font-weight:600;color:#ddd4ff;line-height:1.4}
+.cc-xp{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.cc.picked .cc-xp{color:var(--gold)}
+
+.streak-bar{text-align:center;font-family:'Cinzel',serif;font-size:13px;font-weight:700;color:var(--success);min-height:18px;margin-bottom:4px;transition:all .3s}
+.q-fb{font-size:12.5px;color:var(--success);font-weight:700;min-height:16px;text-align:right}
+
+/* REVEAL */
+#s-reveal{text-align:center;gap:0}
+.rev-wrap{max-width:420px;width:100%}
+.flip-stage{width:100%;max-width:300px;height:210px;perspective:1000px;margin:0 auto 18px;cursor:pointer}
+.flip-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .85s cubic-bezier(.34,1.26,.64,1)}
+.flip-inner.flipped{transform:rotateY(180deg)}
+.flip-f,.flip-b{position:absolute;inset:0;backface-visibility:hidden;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px}
+.flip-f{background:linear-gradient(135deg,#1a0e3a,#0d0822);border:2px solid rgba(124,58,237,.4);box-shadow:0 0 36px rgba(124,58,237,.18)}
+.flip-f-icon{font-size:52px;animation:lev 2s ease-in-out infinite;filter:drop-shadow(0 0 18px var(--spirit))}
+.flip-hint{font-size:12px;color:var(--muted);margin-top:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase}
+.flip-b{background:linear-gradient(135deg,#1a0800,#0c0e22);border:2px solid rgba(255,215,0,.5);transform:rotateY(180deg);box-shadow:0 0 36px var(--glow)}
+.flip-b-icon{font-size:52px;filter:drop-shadow(0 0 18px var(--gold));margin-bottom:6px}
+.flip-b-name{font-family:'Cinzel',serif;font-size:20px;font-weight:700;color:var(--gold)}
+.flip-b-tag{font-size:10px;color:var(--ember);text-transform:uppercase;letter-spacing:2px;margin-top:3px}
+.rev-score{font-family:'Cinzel',serif;font-size:50px;font-weight:900;color:var(--gold);text-shadow:0 0 28px var(--glow);line-height:1}
+.rev-score-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;margin-top:2px}
+.rev-desc{font-size:13.5px;color:var(--spirit2);max-width:360px;margin:0 auto 14px;line-height:1.75}
+
+/* RESULT */
+#s-result{padding-top:58px;justify-content:flex-start;overflow-y:auto}
+.result-scroll{max-width:620px;width:100%;padding:14px 0 60px}
+.r-hero{text-align:center;margin-bottom:18px}
+.r-trophy{font-size:62px;filter:drop-shadow(0 0 28px var(--gold));animation:lev 3s ease-in-out infinite}
+.r-eyebrow{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--ember);margin:6px 0 5px;font-weight:600}
+.r-name{font-family:'Cinzel',serif;font-size:clamp(26px,7vw,50px);font-weight:900;line-height:1.05;background:linear-gradient(135deg,var(--holy) 0%,var(--spirit2) 50%,var(--gold) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
+.r-desc{font-size:13.5px;color:var(--spirit2);max-width:500px;margin:0 auto;line-height:1.8}
+.r-card{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:18px;margin-bottom:12px;position:relative;overflow:hidden}
+.r-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--spirit),transparent)}
+.r-clbl{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--fire);display:flex;align-items:center;gap:5px;margin-bottom:10px}
+.r-clbl::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--fire);box-shadow:0 0 5px var(--fire)}
+.r-verse{font-style:italic;font-size:13.5px;color:#e0d8ff;line-height:1.7;border-left:3px solid var(--gold);padding-left:12px}
+.r-verse cite{display:block;font-size:10px;font-style:normal;font-weight:700;color:var(--gold);letter-spacing:1px;margin-top:4px}
+.r-ai{font-size:13.5px;color:#ddd4ff;line-height:1.85}
+.sec-row{display:flex;gap:7px;flex-wrap:wrap}
+.sec-chip{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:30px;padding:6px 13px;font-size:12.5px;font-weight:600;color:var(--spirit2);display:flex;align-items:center;gap:5px}
+.steps{display:flex;flex-direction:column;gap:11px}
+.s-row{display:flex;gap:11px;align-items:flex-start}
+.s-num{min-width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--fire),var(--ember));color:#1a0800;font-weight:900;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.s-txt{font-size:13.5px;color:#ccc4f0;line-height:1.65}
+.s-txt strong{color:var(--gold)}
+.badges-row{display:flex;gap:11px;justify-content:center;flex-wrap:wrap}
+.b-item{display:flex;flex-direction:column;align-items:center;gap:4px}
+.b-orb{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:21px;border:2px solid var(--gold);background:linear-gradient(135deg,rgba(124,58,237,.4),rgba(255,87,34,.2));box-shadow:0 0 14px var(--glow)}
+.b-orb.dark{border-color:rgba(255,255,255,.1);background:rgba(255,255,255,.04);opacity:.33;box-shadow:none}
+.b-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);text-align:center;max-width:54px}
+.score-big{font-family:'Cinzel',serif;font-size:54px;font-weight:900;color:var(--gold);text-shadow:0 0 28px var(--glow);line-height:1;text-align:center}
+.score-lbl{text-align:center;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-top:2px;margin-bottom:18px}
+
+/* LEADERBOARD */
+#s-board{padding-top:58px;justify-content:flex-start;overflow-y:auto}
+.board-wrap{max-width:560px;width:100%;padding:14px 0 60px}
+.board-h{font-family:'Cinzel',serif;font-size:clamp(20px,5vw,34px);font-weight:900;color:var(--gold);text-align:center;margin-bottom:4px}
+.board-sub{text-align:center;font-size:13px;color:var(--muted);margin-bottom:16px}
+.board-list{background:var(--panel);border:1px solid var(--border);border-radius:18px;overflow:hidden;margin-bottom:14px}
+.b-row{display:grid;grid-template-columns:44px 1fr auto auto;align-items:center;gap:9px;padding:12px 15px;border-bottom:1px solid var(--border);transition:background .2s}
+.b-row:last-child{border-bottom:none}
+.b-row:hover{background:rgba(255,255,255,.02)}
+.b-row.me{background:rgba(255,215,0,.05);border-left:3px solid var(--gold)}
+.b-rank{font-family:'Cinzel',serif;font-size:15px;font-weight:900;text-align:center}
+.rank-1{color:var(--gold)}.rank-2{color:#C0C0C0}.rank-3{color:#CD7F32}
+.b-name{font-weight:700;font-size:13.5px}
+.b-gift{font-size:11px;color:var(--muted)}
+.b-score{font-family:'Cinzel',serif;font-weight:900;color:var(--fire);font-size:14px}
+.b-gem{font-size:13px;letter-spacing:1px}
+.board-empty{text-align:center;padding:28px;color:var(--muted);font-size:13px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:13px 26px;border-radius:50px;border:none;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;cursor:pointer;transition:all .2s;letter-spacing:.3px;white-space:nowrap}
+.btn:active{transform:scale(.96)!important}
+.btn-fire{background:linear-gradient(135deg,var(--fire) 0%,var(--ember) 50%,var(--gold) 100%);color:#1a0800;box-shadow:0 4px 18px rgba(255,87,34,.45);font-weight:800}
+.btn-fire:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 8px 26px rgba(255,87,34,.62)}
+.btn-spirit{background:linear-gradient(135deg,var(--spirit),#4C1D95);color:#fff;box-shadow:0 4px 16px rgba(124,58,237,.38)}
+.btn-spirit:hover{transform:translateY(-2px) scale(1.03)}
+.btn-ghost{background:rgba(255,255,255,.05);color:var(--spirit2);border:1.5px solid rgba(124,58,237,.34)}
+.btn-ghost:hover{background:rgba(124,58,237,.14);transform:translateY(-1px)}
+.btn-sm{padding:9px 19px;font-size:13px}
+.btn-row{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;margin-bottom:9px}
+
+/* FX */
+.xp-pop{position:fixed;z-index:900;pointer-events:none;font-family:'Cinzel',serif;font-size:19px;font-weight:900;color:var(--gold);text-shadow:0 0 10px var(--glow);animation:xpRise 1.1s ease forwards}
+@keyframes xpRise{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-65px)}}
+.blast{position:fixed;inset:0;z-index:800;pointer-events:none;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-weight:900;font-size:clamp(34px,10vw,72px);background:radial-gradient(ellipse at center,rgba(255,215,0,.12) 0%,transparent 70%);animation:blastAnim 1s ease forwards}
+@keyframes blastAnim{0%{opacity:1;transform:scale(.4)}30%{transform:scale(1.12)}100%{opacity:0;transform:scale(.8)}}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--spirit),#4C1D95);color:#fff;padding:10px 20px;border-radius:30px;font-weight:700;font-size:13px;z-index:700;display:flex;align-items:center;gap:6px;box-shadow:0 8px 22px rgba(0,0,0,.5);white-space:nowrap;animation:toastIn .32s ease,toastOut .32s ease 2.1s forwards}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(12px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+@keyframes toastOut{to{opacity:0;transform:translateX(-50%) translateY(12px)}}
+#modal-veil{display:none;position:fixed;inset:0;z-index:500;background:rgba(4,2,12,.82);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:14px}
+#modal-veil.open{display:flex}
+#modal-box{background:linear-gradient(135deg,#1a1035,#100c24);border:1px solid rgba(124,58,237,.38);border-radius:22px;max-width:500px;width:100%;padding:24px 20px;position:relative;max-height:92vh;overflow-y:auto}
+.mx{position:absolute;top:13px;right:13px;background:none;border:none;color:var(--muted);font-size:19px;cursor:pointer;transition:color .2s}
+.mx:hover{color:#fff}
+.share-box{background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.3);border-radius:11px;padding:11px 13px;font-size:12px;color:var(--spirit2);word-break:break-all;cursor:pointer;margin-bottom:10px;transition:background .2s;text-align:left}
+.share-box:hover{background:rgba(124,58,237,.18)}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--deep)}::-webkit-scrollbar-thumb{background:var(--spirit);border-radius:4px}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div id="hud">
+  <div class="hud-logo">🔥 GIFTS UNLOCKED</div>
+  <div class="hud-xp">
+    <div class="hud-row"><span>LVL <span id="h-lvl">1</span></span><span><span id="h-xp">0</span> XP</span></div>
+    <div class="xp-rail"><div class="xp-rod" id="xp-rod" style="width:0%"></div></div>
+  </div>
+  <div class="hud-gems">
+    <div class="gem" id="g0">🙏</div><div class="gem" id="g1">📖</div>
+    <div class="gem" id="g2">⚡</div><div class="gem" id="g3">🏆</div>
+  </div>
+  <div class="hud-pts" id="h-pts">0</div>
+</div>
+
+<div id="stage">
+
+<!-- TITLE -->
+<div class="scene active" id="s-title">
+  <div class="t-flame">🔥</div>
+  <div class="t-tag">✦ Week of Prayer 2026 ✦</div>
+  <h1 class="t-h1">GIFTS<br>UNLOCKED</h1>
+  <div class="t-sub">Spiritual Gifts in Action</div>
+  <div class="t-verse">"The manifestation of the Spirit is given to each one for the profit of all."<cite>— 1 Corinthians 12:7</cite></div>
+  <div class="t-stats">
+    <div class="t-stat"><div class="t-stat-n">12</div><div class="t-stat-l">Gifts</div></div>
+    <div class="t-stat"><div class="t-stat-n">15</div><div class="t-stat-l">Challenges</div></div>
+    <div class="t-stat"><div class="t-stat-n">⏱</div><div class="t-stat-l">Timer</div></div>
+    <div class="t-stat"><div class="t-stat-n">🎴</div><div class="t-stat-l">Card Flip</div></div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-fire" onclick="goScene('s-name')">⚡ Begin Quest</button>
+    <button class="btn btn-ghost" onclick="openExplore()">🗺️ Gifts</button>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-ghost btn-sm" onclick="goScene('s-board');loadBoard()">🏆 Leaderboard</button>
+    <button class="btn btn-ghost btn-sm" onclick="openAdmin()">⚙️ Admin</button>
+  </div>
+  <p style="font-size:11px;color:var(--muted);margin-top:8px">"Spiritual Gifts in Action" — WOP 2026 · Maria Manderson</p>
+</div>
+
+<!-- NAME -->
+<div class="scene" id="s-name">
+  <div class="n-icon">⚡</div>
+  <h2 class="n-h">The Spirit calls you by name…</h2>
+  <p class="n-p">Enter your name to begin the quest, earn points, and appear on the Hall of Champions!</p>
+  <input id="inp" class="n-input" type="text" placeholder="Your name…" maxlength="26" autocomplete="off" onkeydown="if(event.key==='Enter')startGame()">
+  <div class="btn-row" style="margin-top:6px">
+    <button class="btn btn-fire" onclick="startGame()">🚀 Enter the Quest</button>
+    <button class="btn btn-ghost btn-sm" onclick="goScene('s-title')">← Back</button>
+  </div>
+</div>
+
+<!-- STORY -->
+<div class="scene" id="s-story">
+  <div class="story-card">
+    <div class="story-icon" id="si">🕊️</div>
+    <div class="story-h" id="sh">Loading…</div>
+    <div class="story-body" id="sb"></div>
+  </div>
+  <button class="btn btn-fire" id="story-btn">Continue →</button>
+</div>
+
+<!-- GAME -->
+<div class="scene" id="s-game">
+  <div class="game-wrap">
+    <div class="prog-block">
+      <div class="prog-meta"><span id="q-lbl">Challenge 1 of 15</span><span id="q-xp-hint" style="color:var(--ember)">+25 XP available</span></div>
+      <div class="prog-rail"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+    <div class="game-header">
+      <div class="round-tag" id="round-tag">⚔️ Round 1</div>
+      <div class="timer-wrap">
+        <svg viewBox="0 0 48 48"><circle class="ring-bg" cx="24" cy="24" r="20"/><circle class="ring-fg" id="ring-fg" cx="24" cy="24" r="20"/></svg>
+        <div class="timer-n" id="timer-n">15</div>
+      </div>
+    </div>
+    <div class="q-card">
+      <div class="q-type"><div class="q-dot"></div><div class="q-type-lbl" id="q-type">Spirit Challenge</div></div>
+      <div class="q-text" id="q-text">Loading…</div>
+    </div>
+    <div class="streak-bar" id="streak-bar"></div>
+    <div class="choices" id="choices"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+      <button class="btn btn-ghost btn-sm" onclick="skipQ()">Skip ›</button>
+      <div class="q-fb" id="q-fb"></div>
+    </div>
+  </div>
+</div>
+
+<!-- REVEAL -->
+<div class="scene" id="s-reveal">
+  <div class="rev-wrap">
+    <div style="margin-bottom:10px;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--ember)">✦ Your Gift Awaits ✦</div>
+    <div class="flip-stage" id="flip-stage" onclick="doFlip()">
+      <div class="flip-inner" id="flip-inner">
+        <div class="flip-f"><div class="flip-f-icon">🎴</div><div class="flip-hint">Tap to reveal your gift</div></div>
+        <div class="flip-b" id="flip-b">
+          <div class="flip-b-icon" id="fi">✨</div>
+          <div class="flip-b-name" id="fn">—</div>
+          <div class="flip-b-tag">Your Spiritual Gift</div>
+        </div>
+      </div>
+    </div>
+    <div id="before-flip"><div style="font-size:13px;color:var(--muted)">Quest complete! Tap the card to reveal your gift.</div></div>
+    <div id="after-flip" style="display:none">
+      <div class="rev-score" id="rv-score">0</div>
+      <div class="rev-score-lbl">TOTAL SCORE</div>
+      <div class="rev-desc" id="rv-desc">—</div>
+      <button class="btn btn-fire" onclick="goScene('s-result')" style="margin-top:6px">See Full Result →</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div class="scene" id="s-result">
+  <div class="result-scroll">
+    <div class="r-hero">
+      <div class="r-trophy" id="r-icon">🏆</div>
+      <div class="r-eyebrow">✦ Your Spiritual Gift Has Been Revealed ✦</div>
+      <div class="r-name" id="r-name">—</div>
+      <div class="r-desc" id="r-desc">—</div>
+    </div>
+    <div class="r-card"><div class="r-clbl">🕊️ Spirit-Led Encouragement</div><div class="r-ai" id="r-ai">Generating your personal word…</div></div>
+    <div class="r-card"><div class="r-clbl">📖 Scripture for Your Gift</div><div class="r-verse" id="r-verse">—</div></div>
+    <div class="r-card"><div class="r-clbl">✨ You Also Carry</div><div class="sec-row" id="r-sec"></div></div>
+    <div class="score-big" id="r-score">0</div>
+    <div class="score-lbl">FINAL SCORE</div>
+    <div class="badges-row" id="r-badges" style="margin-bottom:16px"></div>
+    <div class="r-card">
+      <div class="r-clbl">⚡ Your 4-Step Activation Plan</div>
+      <div class="steps">
+        <div class="s-row"><div class="s-num">1</div><div class="s-txt"><strong>Pray</strong> — Ask God daily to confirm and activate your gift. Start every day there.</div></div>
+        <div class="s-row"><div class="s-num">2</div><div class="s-txt"><strong>Identify</strong> — Pay attention to what comes alive in you when you serve others.</div></div>
+        <div class="s-row"><div class="s-num">3</div><div class="s-txt"><strong>Practice</strong> — God qualifies those He calls. Step out even when you feel unready.</div></div>
+        <div class="s-row"><div class="s-num">4</div><div class="s-txt"><strong>Serve</strong> — Your gift is for the whole world, not just your local church. Go boldly.</div></div>
+      </div>
+    </div>
+    <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
+    <div class="btn-row">
+      <button class="btn btn-fire" onclick="openShare()">🔗 Share My Gift</button>
+      <button class="btn btn-spirit" onclick="goScene('s-board');loadBoard()">🏆 Leaderboard</button>
+    </div>
+    <div class="btn-row" style="margin-top:6px">
+      <button class="btn btn-ghost btn-sm" onclick="restart()">🔄 Play Again</button>
+      <button class="btn btn-ghost btn-sm" onclick="openExplore()">🗺️ All Gifts</button>
+    </div>
+    <p style="text-align:center;font-size:10px;color:var(--muted);margin-top:10px">1 Cor. 12 · Rom. 12 · Eph. 4 · 1 Pet. 4 | WOP 2026</p>
+  </div>
+</div>
+
+<!-- LEADERBOARD -->
+<div class="scene" id="s-board">
+  <div class="board-wrap">
+    <div class="board-h">🏆 Hall of Champions</div>
+    <div class="board-sub">WOP 2026 — Gifts Unlocked</div>
+    <div class="board-list" id="board-list"><div class="board-empty">Loading…</div></div>
+    <div class="btn-row">
+      <button class="btn btn-fire" onclick="goScene('s-name')">⚡ Join the Board</button>
+      <button class="btn btn-ghost btn-sm" onclick="goScene('s-title')">← Home</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /stage -->
+
+<div id="modal-veil" onclick="if(event.target===this)closeModal()">
+  <div id="modal-box"><button class="mx" onclick="closeModal()">✕</button><div id="modal-body"></div></div>
+</div>
+
+<script>
+/* ── PARTICLES ── */
+(()=>{
+  const cv=document.getElementById('bg'),cx=cv.getContext('2d');
+  let W,H,pts=[];
+  const resize=()=>{W=cv.width=innerWidth;H=cv.height=innerHeight};
+  resize();addEventListener('resize',resize);
+  const mk=()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.7+.3,vx:(Math.random()-.5)*.22,vy:-Math.random()*.32-.05,a:Math.random()*.7,h:Math.random()>.65?35:Math.random()>.4?270:195});
+  for(let i=0;i<170;i++)pts.push(mk());
+  (function loop(){
+    cx.clearRect(0,0,W,H);
+    pts.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;p.a+=(Math.random()-.5)*.025;
+      p.a=Math.max(.03,Math.min(.82,p.a));
+      if(p.y<-4){Object.assign(p,mk());p.y=H+4;}
+      cx.beginPath();cx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      cx.fillStyle=`hsla(${p.h},100%,70%,${p.a})`;cx.fill();
+    });
+    requestAnimationFrame(loop);
+  })();
+})();
+
+/* ── DATA ── */
+const GIFTS=[
+  {id:'teaching',icon:'📚',name:'Teaching',desc:'You have a supernatural ability to open God\'s Word and make deep truths crystal clear. People leave your presence enlightened and hungry for more.',verse:'"He who teaches, in teaching." — Romans 12:7',ref:'Romans 12:7 · 1 Corinthians 12:28',tips:['Lead a youth Bible study','Mentor a new believer','Create short devotional content']},
+  {id:'leadership',icon:'👑',name:'Leadership',desc:'God has placed a vision inside you. You see where the Kingdom needs to go and have the courage to take people there with diligence.',verse:'"He who leads, with diligence." — Romans 12:8',ref:'Romans 12:8 · 1 Corinthians 12:28',tips:['Launch a community outreach project','Lead your church youth team','Cast vision for new ministry']},
+  {id:'mercy',icon:'💜',name:'Mercy',desc:'Your heart breaks for the hurting. You offer compassionate presence without judgment. People feel genuinely seen and loved when near you.',verse:'"He who shows mercy, with cheerfulness." — Romans 12:8',ref:'Romans 12:8',tips:['Visit hospitals or care homes','Walk alongside grieving youth','Start a support group']},
+  {id:'service',icon:'🤝',name:'Service',desc:'You find pure joy in meeting needs behind the scenes. Where others walk past the gap, you stop and fill it. Your faithfulness moves mountains.',verse:'"As each one has received a gift, minister it to one another." — 1 Peter 4:10',ref:'Romans 12:7 · 1 Peter 4:10',tips:['Coordinate food drives','Handle church event logistics','Quietly fill the gaps others miss']},
+  {id:'giving',icon:'💛',name:'Giving',desc:'God has given you a heart of radical generosity. You see needs no one else notices and meet them with cheerful, sacrificial love.',verse:'"He who gives, with liberality." — Romans 12:8',ref:'Romans 12:8 · 2 Corinthians 9:7',tips:['Partner with mission projects','Fund ministry scholarships','Support community initiatives']},
+  {id:'encouragement',icon:'🔥',name:'Encouragement',desc:'Your words carry power to lift people from despair to destiny. You call out the God-given potential in people they can\'t yet see in themselves.',verse:'"He who exhorts, in exhortation." — Romans 12:8',ref:'Romans 12:8',tips:['Send personalised encouragement','Lead a testimony night','Create uplifting faith content online']},
+  {id:'prophecy',icon:'⚡',name:'Prophecy',desc:'You boldly declare what God is saying. Your voice cuts through noise with a conviction that challenges complacency and calls hearts back to God.',verse:'"If prophecy, let us prophesy in proportion to our faith." — Romans 12:6',ref:'Romans 12:6 · 1 Corinthians 12:10',tips:['Preach at your youth group','Write truth-centred content','Intercede boldly for your church']},
+  {id:'faith',icon:'🌟',name:'Faith',desc:'You believe God in situations that leave everyone else paralysed. Your unshakeable confidence in God\'s promises anchors your whole community.',verse:'"Faith is the substance of things hoped for, the evidence of things not seen." — Hebrews 11:1',ref:'1 Corinthians 12:9 · Hebrews 11',tips:['Lead bold specific prayer initiatives','Share testimonies publicly','Challenge your community to God-sized goals']},
+  {id:'wisdom',icon:'📖',name:'Wisdom',desc:'God grants you unusual clarity to apply Scripture to real-life situations. When your community faces hard decisions, they instinctively look to you.',verse:'"For to one is given the word of wisdom through the Spirit." — 1 Corinthians 12:8',ref:'1 Corinthians 12:8 · Proverbs 2',tips:['Counsel peers navigating major choices','Lead Scripture-to-life discussions','Help your church discern complex decisions']},
+  {id:'hospitality',icon:'🏠',name:'Hospitality',desc:'You create spaces where strangers become family. Your gift opens hearts to the Gospel because people first feel genuinely welcomed and loved.',verse:'"Be hospitable to one another without grumbling." — 1 Peter 4:9',ref:'1 Peter 4:9 · Romans 12:13',tips:['Host welcome dinners for newcomers','Organise community meals','Make every visitor feel seen']},
+  {id:'evangelism',icon:'📣',name:'Evangelism',desc:'You burn with passion to share the Gospel. Faith conversations feel natural and you find deep joy in connecting people to Jesus anywhere you go.',verse:'"Go therefore and make disciples of all the nations." — Matthew 28:19',ref:'Ephesians 4:11 · Matthew 28:19',tips:['Share your testimony in class or online','Partner with church outreach','Start a campus ministry group']},
+  {id:'intercession',icon:'🙏',name:'Intercession',desc:'You carry a holy burden to pray for others. Your prayers move heaven. You are most alive standing in the gap for people who need God\'s breakthrough.',verse:'"They were all filled with the Holy Spirit and spoke the word of God boldly." — Acts 4:31',ref:'Acts 4:31 · 1 Timothy 2:1',tips:['Start or join a prayer network','Organise 100 Days of Prayer','Track answered prayers as testimony']},
+];
+
+const CHS=[
+  {round:'⚔️ ROUND 1',type:'Scenario',q:"You're in a group facing a hard problem. What do you naturally do?",opts:[
+    {t:'Break it down and explain it clearly to everyone',g:['teaching','wisdom'],xp:25,icon:'💡'},
+    {t:'Step up, take charge, guide the group forward',g:['leadership'],xp:25,icon:'🗺️'},
+    {t:'Make sure everyone feels heard and included',g:['mercy','hospitality'],xp:25,icon:'🤗'},
+    {t:'Quietly take on the tasks no one else wants',g:['service'],xp:25,icon:'🔧'},
+  ]},
+  {round:'⚔️ ROUND 1',type:'Heart Check',q:"A friend is devastated after a major loss. Your first instinct is to…",opts:[
+    {t:'Sit quietly beside them and just be fully present',g:['mercy','intercession'],xp:25,icon:'💜'},
+    {t:'Share Scripture promises that bring real hope',g:['teaching','prophecy'],xp:25,icon:'📖'},
+    {t:'Pray with them and believe God for breakthrough',g:['faith','intercession'],xp:25,icon:'🙏'},
+    {t:'Organise practical help — food, transport, anything',g:['service','giving'],xp:25,icon:'🤝'},
+  ]},
+  {round:'⚔️ ROUND 1',type:'Bible Moment',q:"Which Scripture moment makes your heart race?",opts:[
+    {t:'Paul explaining Scripture and changing entire cities',g:['teaching','leadership'],xp:30,icon:'📚'},
+    {t:'Elijah on Mt Carmel calling down fire from heaven',g:['faith','prophecy'],xp:30,icon:'🔥'},
+    {t:'Jesus feeding five thousand with almost nothing',g:['service','giving'],xp:30,icon:'🍞'},
+    {t:'Pentecost — the Spirit falling and 3,000 converted',g:['evangelism','intercession'],xp:30,icon:'⚡'},
+  ]},
+  {round:'⚔️ ROUND 1',type:'Dream Launch',q:"If your church said GO and gave you unlimited resources, you'd launch…",opts:[
+    {t:'A discipleship school training young people to teach the Word',g:['teaching','leadership'],xp:30,icon:'🏫'},
+    {t:'A community centre meeting real practical needs',g:['service','giving','hospitality'],xp:30,icon:'🏠'},
+    {t:'A bold campus evangelism movement',g:['evangelism','prophecy'],xp:30,icon:'📣'},
+    {t:'A 24/7 prayer and intercession house',g:['intercession','faith'],xp:30,icon:'🙏'},
+  ]},
+  {round:'🌟 ROUND 2',type:'People Say',q:"The thing people most often say about you is…",opts:[
+    {t:'"You always make complicated things make sense"',g:['teaching','wisdom'],xp:30,icon:'💡'},
+    {t:'"You make me feel completely at home"',g:['hospitality','mercy'],xp:30,icon:'🏠'},
+    {t:'"You always know how to lift me back up"',g:['encouragement','faith'],xp:30,icon:'🔥'},
+    {t:'"You\'re the most generous person I know"',g:['giving','service'],xp:30,icon:'💛'},
+  ]},
+  {round:'🌟 ROUND 2',type:'Deep Dive',q:"What service brings you the DEEPEST sense of fulfillment?",opts:[
+    {t:'Teaching someone — watching understanding click in their eyes',g:['teaching'],xp:35,icon:'📚'},
+    {t:'Praying for hours — carrying someone else\'s burden',g:['intercession'],xp:35,icon:'🙏'},
+    {t:'Organising and leading a ministry initiative end-to-end',g:['leadership','service'],xp:35,icon:'👑'},
+    {t:'One conversation where someone first meets Jesus',g:['evangelism','encouragement'],xp:35,icon:'📣'},
+  ]},
+  {round:'🌟 ROUND 2',type:'Scenario',q:"Someone in your community is in a spiritual crisis. You most want to…",opts:[
+    {t:'Lovingly confront them with God\'s truth',g:['prophecy','encouragement'],xp:30,icon:'⚡'},
+    {t:'Pray intensely and not stop until you sense peace',g:['intercession','faith'],xp:30,icon:'🙏'},
+    {t:'Walk with them patiently for as long as needed',g:['mercy','service'],xp:30,icon:'💜'},
+    {t:'Share wisdom and map out practical next steps',g:['wisdom','teaching'],xp:30,icon:'📖'},
+  ]},
+  {round:'🌟 ROUND 2',type:'In The Room',q:"When you walk into any group, you naturally become…",opts:[
+    {t:'The one making sure no one is invisible or left out',g:['hospitality','mercy'],xp:30,icon:'🤗'},
+    {t:'The one who starts leading things naturally',g:['leadership'],xp:30,icon:'👑'},
+    {t:'The one telling God stories that get people fired up',g:['evangelism','encouragement'],xp:30,icon:'🔥'},
+    {t:'The one quietly making sure everything works',g:['service'],xp:30,icon:'🔧'},
+  ]},
+  {round:'💎 ROUND 3',type:'Closest To God',q:"\"I feel closest to God when I\'m…\"",opts:[
+    {t:'…deep in the Word, discovering a truth I\'ve never seen',g:['teaching','wisdom'],xp:40,icon:'📖'},
+    {t:'…in intense prayer for someone who needs God',g:['intercession','faith'],xp:40,icon:'🙏'},
+    {t:'…sharing my faith with someone who is far from God',g:['evangelism','encouragement'],xp:40,icon:'📣'},
+    {t:'…serving in the background, meeting a real need',g:['service','giving'],xp:40,icon:'🤝'},
+  ]},
+  {round:'💎 ROUND 3',type:'Injustice Test',q:"You witness something genuinely unfair in your community. Your gut says…",opts:[
+    {t:'Speak up boldly — someone has to name this',g:['prophecy','leadership'],xp:35,icon:'⚡'},
+    {t:'Go pray first — God needs to move here',g:['intercession','faith'],xp:35,icon:'🙏'},
+    {t:'Listen to all sides and find the wise path through',g:['wisdom','mercy'],xp:35,icon:'📖'},
+    {t:'Find a practical way to fix the actual problem',g:['service'],xp:35,icon:'🔧'},
+  ]},
+  {round:'💎 ROUND 3',type:'Free Day',q:"Your ideal Saturday morning is…",opts:[
+    {t:'Deep Bible study preparing something to share',g:['teaching','wisdom'],xp:35,icon:'📚'},
+    {t:'Volunteering or helping a neighbour in need',g:['service','giving'],xp:35,icon:'🤝'},
+    {t:'Two hours of uninterrupted prayer and intercession',g:['intercession'],xp:35,icon:'🙏'},
+    {t:'Meeting new people and building real relationships',g:['evangelism','hospitality'],xp:35,icon:'📣'},
+  ]},
+  {round:'🏆 FINAL ROUND',type:'Legacy',q:"If you had 10 minutes to speak to 500 strangers, you'd…",opts:[
+    {t:'Teach something that permanently changes how they see God',g:['teaching','prophecy'],xp:45,icon:'📚'},
+    {t:'Share your testimony and invite them to know Jesus',g:['evangelism','encouragement'],xp:45,icon:'🔥'},
+    {t:'Challenge them to step up and change the world',g:['leadership','faith'],xp:45,icon:'👑'},
+    {t:'Invite every single one to feel welcome and known',g:['hospitality','mercy'],xp:45,icon:'💜'},
+  ]},
+  {round:'🏆 FINAL ROUND',type:'Bible Hero',q:"Which biblical character do you most see yourself in?",opts:[
+    {t:'Paul — bold teacher, church planter, world-changer',g:['teaching','leadership','evangelism'],xp:45,icon:'✍️'},
+    {t:'Esther — the courageous intercessor who saved a nation',g:['intercession','faith','prophecy'],xp:45,icon:'👑'},
+    {t:'Barnabas — the encourager who saw gold in everyone',g:['encouragement','mercy','hospitality'],xp:45,icon:'💛'},
+    {t:'Nehemiah — the practical visionary who rebuilt what was broken',g:['leadership','service'],xp:45,icon:'🏗️'},
+  ]},
+  {round:'🏆 FINAL ROUND',type:'Crisis Mode',q:"A ministry is collapsing. People are losing heart. You…",opts:[
+    {t:'Diagnose the problem and build a clear rescue plan',g:['leadership','wisdom'],xp:45,icon:'🗺️'},
+    {t:'Rally everyone with a word that reignites them',g:['encouragement','faith'],xp:45,icon:'🔥'},
+    {t:'Go apart and pray until you hear from God',g:['intercession'],xp:45,icon:'🙏'},
+    {t:'Find the gaps and quietly start filling them yourself',g:['service'],xp:45,icon:'🔧'},
+  ]},
+  {round:'🏆 FINAL ROUND',type:'Kingdom Vision',q:"The Kingdom of God advances most powerfully through…",opts:[
+    {t:'Bold proclamation — preaching and teaching the Word',g:['teaching','prophecy'],xp:50,icon:'📣'},
+    {t:'Earnest prayer that moves heaven',g:['intercession','faith'],xp:50,icon:'🙏'},
+    {t:'Acts of love, service, and generosity',g:['service','giving','mercy'],xp:50,icon:'💜'},
+    {t:'Authentic community that makes the unloved feel loved',g:['hospitality','evangelism','encouragement'],xp:50,icon:'🏠'},
+  ]},
+];
+
+/* ── STATE ── */
+let S={name:'',xp:0,lvl:1,score:0,gems:[false,false,false,false],gs:{},qi:0,streak:0,maxS:0,ans:0,top:null,sec:[],aiTxt:'',done:false,flipped:false};
+let timer=null,timeLeft=15;
+const PL=200;
+
+function initGS(){GIFTS.forEach(g=>S.gs[g.id]=0);}
+
+/* ── NAVIGATION ── */
+function goScene(id){
+  document.querySelectorAll('.scene').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById(id);if(el)el.classList.add('active');
+  const showHUD=['s-game','s-result','s-board'].includes(id);
+  document.getElementById('hud').classList.toggle('show',showHUD);
+}
+
+/* ── GAME START ── */
+function startGame(){
+  const n=document.getElementById('inp').value.trim();
+  if(!n){toast('Please enter your name first!');return;}
+  S={name:n,xp:0,lvl:1,score:0,gems:[false,false,false,false],gs:{},qi:0,streak:0,maxS:0,ans:0,top:null,sec:[],aiTxt:'',done:false,flipped:false};
+  initGS();updateHUD();
+  showStory(0,()=>showStory(1,()=>{goScene('s-game');renderQ();}));
+}
+
+const STORIES=[
+  {icon:'🕊️',h:'',body:'<strong>Every person born again has been given at least one spiritual gift.</strong> Not because of anything you did — but because God prepared good works for you before you were even born (Eph. 2:10).<br><br>This quest will reveal what those gifts are. Through 15 real-life challenges, the Spirit will show you where He has anointed you.<span class="story-v">"As each one has received a gift, minister it to one another." — 1 Peter 4:10</span>',btn:"I'm Ready →"},
+  {icon:'⚔️',h:'The Quest Begins!',body:'You will face <strong>15 challenges</strong> across 4 rounds. Each challenge has a <strong>15-second timer</strong> — trust your instincts. The Holy Spirit often speaks first.<br><br>Answer quickly for <em>time bonuses</em>. Build streaks for <em>combo multipliers</em>. Earn XP and unlock badges.<span class="story-v">"Be transformed by the renewing of your mind." — Romans 12:2</span>',btn:'Begin Challenge ⚡'},
+];
+function showStory(i,cb){
+  const s=STORIES[i];
+  document.getElementById('si').textContent=s.icon;
+  document.getElementById('sh').textContent=(i===0?S.name+', the Spirit of God is moving…':s.h);
+  document.getElementById('sb').innerHTML=s.body;
+  document.getElementById('story-btn').textContent=s.btn;
+  document.getElementById('story-btn').onclick=()=>{goScene('s-story');setTimeout(cb,60)};
+  goScene('s-story');
+}
+
+/* ── TIMER ── */
+function startTimer(max){
+  clearInterval(timer);timeLeft=max;tickTimer(max,max);
+  timer=setInterval(()=>{timeLeft--;tickTimer(timeLeft,max);if(timeLeft<=0){clearInterval(timer);autoSkip();}},1000);
+}
+function tickTimer(t,max){
+  const offset=126-(126*(t/max));
+  const ring=document.getElementById('ring-fg');
+  ring.style.strokeDashoffset=offset;
+  ring.className='ring-fg'+(t<=4?' d':t<=7?' w':'');
+  const tn=document.getElementById('timer-n');
+  tn.textContent=t;
+  tn.style.color=t<=4?'var(--fire)':t<=7?'var(--warn)':'var(--gold)';
+}
+function autoSkip(){S.streak=0;S.qi++;renderQ();}
+function skipQ(){clearInterval(timer);S.streak=0;S.qi++;renderQ();}
+
+/* ── RENDER Q ── */
+function renderQ(){
+  if(S.qi>=CHS.length){clearInterval(timer);computeResult();return;}
+  const c=CHS[S.qi];
+  const pct=(S.qi/CHS.length*100).toFixed(1);
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('q-lbl').textContent=`Challenge ${S.qi+1} of ${CHS.length}`;
+  document.getElementById('q-xp-hint').textContent=`+${c.opts[0].xp} XP available`;
+  document.getElementById('round-tag').textContent=c.round;
+  document.getElementById('q-type').textContent=c.type;
+  document.getElementById('q-text').textContent=c.q;
+  document.getElementById('q-fb').textContent='';
+  updateStreak();
+  const wrap=document.getElementById('choices');wrap.innerHTML='';
+  c.opts.forEach((o,i)=>{
+    const d=document.createElement('div');d.className='cc';
+    d.innerHTML=`<div class="cc-icon">${o.icon}</div><div class="cc-text">${o.t}</div><div class="cc-xp">+${o.xp} XP</div>`;
+    d.onclick=()=>pick(d,o);
+    wrap.appendChild(d);
+  });
+  startTimer(15);
+}
+
+function pick(el,opt){
+  clearInterval(timer);
+  document.querySelectorAll('.cc').forEach(c=>c.classList.add('locked'));
+  el.classList.add('picked');
+  opt.g.forEach(gid=>{if(S.gs[gid]!==undefined)S.gs[gid]+=opt.xp/opt.g.length;});
+  const tb=timeLeft>=12?15:timeLeft>=8?8:0;
+  const cb=S.streak>=4?Math.floor(opt.xp*.5):S.streak>=2?Math.floor(opt.xp*.25):0;
+  const total=opt.xp+tb+cb;
+  S.xp+=total;S.score+=total;S.ans++;S.streak++;S.maxS=Math.max(S.maxS,S.streak);
+  const nl=Math.floor(S.xp/PL)+1;
+  if(nl>S.lvl){S.lvl=nl;blast(`LEVEL ${S.lvl}!`);toast(`🎉 Level ${S.lvl} Unlocked!`);}
+  if(S.ans===1)unlockGem(0);
+  if(S.ans===5)unlockGem(1);
+  if(S.ans===10)unlockGem(2);
+  if(S.streak===3)blast('3× COMBO!');
+  if(S.streak===5)blast('🔥 ON FIRE!');
+  if(S.streak===7)blast('⚡ UNSTOPPABLE!');
+  document.getElementById('q-fb').textContent=cb>0?`+${total} XP (${S.streak}× streak!)`:(tb>0?`+${total} XP (⚡ speed bonus!)`:`+${total} XP`);
+  xpPop('+'+total);updateHUD();
+  setTimeout(()=>{S.qi++;renderQ();},880);
+}
+
+function updateStreak(){
+  const b=document.getElementById('streak-bar');
+  if(S.streak>=5)b.textContent=`🔥 ${S.streak}× Streak — You\'re on fire!`;
+  else if(S.streak>=3)b.textContent=`⚡ ${S.streak}× Combo — Keep going!`;
+  else if(S.streak>=2)b.textContent=`✦ ${S.streak}× Streak!`;
+  else b.textContent='';
+}
+
+/* ── RESULT COMPUTE ── */
+async function computeResult(){
+  goScene('s-reveal');unlockGem(3);
+  const sorted=Object.entries(S.gs).sort((a,b)=>b[1]-a[1]);
+  S.top=GIFTS.find(g=>g.id===sorted[0][0])||GIFTS[0];
+  S.sec=sorted.slice(1,4).map(([id])=>GIFTS.find(g=>g.id===id)).filter(Boolean);
+  document.getElementById('fi').textContent=S.top.icon;
+  document.getElementById('fn').textContent=S.top.name;
+  document.getElementById('rv-score').textContent=S.score.toLocaleString();
+  document.getElementById('rv-desc').textContent=S.top.desc.substring(0,95)+'…';
+  try{await window.storage.set('wop:'+S.name+':'+Date.now(),JSON.stringify({name:S.name,gift:S.top.name,icon:S.top.icon,score:S.score,xp:S.xp,lvl:S.lvl,gems:S.gems.filter(Boolean).length,ts:Date.now()}),true);}catch(e){}
+  fetchAI().then(t=>{S.aiTxt=t;document.getElementById('r-ai').textContent=t;});
+  renderResult();S.done=true;
+}
+
+function doFlip(){
+  if(S.flipped)return;S.flipped=true;
+  document.getElementById('flip-inner').classList.add('flipped');
+  blast(S.top?.icon||'✨');
+  setTimeout(()=>{
+    document.getElementById('before-flip').style.display='none';
+    document.getElementById('after-flip').style.display='block';
+  },920);
+}
+
+async function fetchAI(){
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:`You are a warm, Spirit-filled Adventist youth pastor writing personalised encouragement based on the WOP 2026 booklet "Spiritual Gifts in Action" by Maria Manderson (1 Cor. 12:4-7). Be specific, energetic, biblically grounded. 3-4 sentences. No markdown.`,messages:[{role:'user',content:`${S.name} discovered their spiritual gift is ${S.top.name}. Secondary gifts: ${S.sec.map(g=>g.name).join(', ')}. Score: ${S.score}. Write personalised Spirit-filled encouragement with 1-2 Bible verse references. Sign off warmly.`}]})});
+    const d=await r.json();return d.content?.[0]?.text||defAI();
+  }catch(e){return defAI();}
+}
+function defAI(){return `${S.name}, the Holy Spirit has uniquely equipped you with the gift of ${S.top?.name}! Romans 12:6 reminds us that every gift differs "according to the grace given to us" — and yours is exactly what the body of Christ needs right now. Step out boldly, serve with love, and remember: "The manifestation of the Spirit is given to each one for the profit of all" (1 Cor. 12:7). You were created for this — go and activate your gift with joy!`;}
+
+function renderResult(){
+  const g=S.top;
+  document.getElementById('r-icon').textContent=g.icon;
+  document.getElementById('r-name').textContent=g.name;
+  document.getElementById('r-desc').textContent=g.desc;
+  document.getElementById('r-verse').innerHTML=`${g.verse}<cite>${g.ref}</cite>`;
+  document.getElementById('r-score').textContent=S.score.toLocaleString();
+  document.getElementById('r-sec').innerHTML=S.sec.map(sg=>`<div class="sec-chip">${sg.icon} ${sg.name}</div>`).join('');
+  const BD=[{i:'🙏',l:'Prayer Warrior'},{i:'📖',l:'Wisdom Seeker'},{i:'⚡',l:'Spirit Activated'},{i:'🏆',l:'Champion'}];
+  document.getElementById('r-badges').innerHTML=BD.map((b,i)=>`<div class="b-item"><div class="b-orb${S.gems[i]?'':' dark'}">${b.i}</div><div class="b-lbl">${b.l}</div></div>`).join('');
+  document.getElementById('r-ai').textContent=S.aiTxt||'Generating your personal word…';
+}
+
+/* ── HUD ── */
+function unlockGem(i){
+  if(S.gems[i])return;S.gems[i]=true;
+  document.getElementById('g'+i).classList.add('lit');
+  const lbl=['Prayer Warrior','Wisdom Seeker','Spirit Activated','Gift Champion'];
+  toast(`🏅 Badge: ${lbl[i]}!`);updateHUD();
+}
+function updateHUD(){
+  document.getElementById('h-lvl').textContent=S.lvl;
+  document.getElementById('h-xp').textContent=S.xp;
+  document.getElementById('h-pts').textContent=S.score.toLocaleString()+' pts';
+  document.getElementById('xp-rod').style.width=((S.xp%PL)/PL*100).toFixed(1)+'%';
+  S.gems.forEach((on,i)=>document.getElementById('g'+i).classList.toggle('lit',on));
+}
+
+/* ── LEADERBOARD ── */
+async function loadBoard(){
+  document.getElementById('board-list').innerHTML='<div class="board-empty">Loading champions…</div>';
+  try{
+    const res=await window.storage.list('wop:',true);
+    const keys=(res?.keys||[]).slice(-60);
+    const entries=[];
+    for(const k of keys){try{const r=await window.storage.get(k,true);if(r?.value)entries.push(JSON.parse(r.value));}catch(e){}}
+    entries.sort((a,b)=>b.score-a.score);
+    const top=entries.slice(0,20);
+    if(!top.length){document.getElementById('board-list').innerHTML='<div class="board-empty">No champions yet — be the first! 🔥</div>';return;}
+    const m=['🥇','🥈','🥉'];
+    document.getElementById('board-list').innerHTML=top.map((e,i)=>`
+      <div class="b-row${e.name===S.name?' me':''}">
+        <div class="b-rank${i<3?' rank-'+(i+1):''}">${m[i]||i+1}</div>
+        <div><div class="b-name">${esc(e.name)}</div><div class="b-gift">${e.icon||''} ${esc(e.gift||'—')}</div></div>
+        <div class="b-gem">${'⭐'.repeat(e.gems||0)}</div>
+        <div class="b-score">${(e.score||0).toLocaleString()}</div>
+      </div>`).join('');
+  }catch(e){document.getElementById('board-list').innerHTML='<div class="board-empty">Could not load — try again.</div>';}
+}
+
+/* ── EXPLORE ── */
+function openExplore(){
+  document.getElementById('modal-body').innerHTML=`
+    <div style="font-family:'Cinzel',serif;font-size:17px;font-weight:700;color:var(--gold);margin-bottom:13px;text-align:center">🗺️ All 12 Spiritual Gifts</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:9px;margin-bottom:14px">
+      ${GIFTS.map(g=>`<div onclick="showGift('${g.id}')"
+        style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;padding:13px 9px;text-align:center;cursor:pointer;transition:all .2s"
+        onmouseover="this.style.borderColor='var(--spirit2)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="font-size:26px;margin-bottom:5px">${g.icon}</div>
+        <div style="font-family:'Cinzel',serif;font-size:11px;font-weight:700;color:var(--gold)">${g.name}</div>
+      </div>`).join('')}
+    </div>
+    <button class="btn btn-fire btn-sm" style="width:100%" onclick="closeModal();goScene('s-name')">⚡ Take the Quest!</button>`;
+  document.getElementById('modal-veil').classList.add('open');
+}
+function showGift(id){
+  const g=GIFTS.find(x=>x.id===id);if(!g)return;
+  document.getElementById('modal-body').innerHTML=`
+    <div style="text-align:center;margin-bottom:14px">
+      <div style="font-size:44px">${g.icon}</div>
+      <div style="font-family:'Cinzel',serif;font-size:19px;font-weight:700;color:var(--gold);margin-top:7px">${g.name}</div>
+      <div style="font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:2px">${g.ref}</div>
+    </div>
+    <div style="font-size:13.5px;color:#ddd4ff;line-height:1.8;margin-bottom:13px">${g.desc}</div>
+    <div style="background:rgba(255,215,0,.06);border-left:3px solid var(--gold);border-radius:0 10px 10px 0;padding:10px 13px;font-style:italic;color:#e8e0ff;font-size:13px;margin-bottom:13px;line-height:1.6">${g.verse}</div>
+    <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:7px">Ways to Use This Gift</div>
+    ${g.tips.map(t=>`<div style="display:flex;gap:7px;margin-bottom:6px;font-size:13px;color:#ccc4f0;align-items:flex-start"><span style="color:var(--fire);margin-top:2px">✦</span><span>${t}</span></div>`).join('')}
+    <div style="margin-top:16px;display:flex;gap:7px">
+      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="openExplore()">← All Gifts</button>
+      <button class="btn btn-fire btn-sm" style="flex:1" onclick="closeModal();goScene('s-name')">⚡ Take the Quest</button>
+    </div>`;
+}
+
+/* ── SHARE ── */
+function openShare(){
+  const url=window.location.href;
+  document.getElementById('modal-body').innerHTML=`
+    <div style="text-align:center;margin-bottom:12px">
+      <div style="font-size:34px;margin-bottom:5px">🔗</div>
+      <div style="font-family:'Cinzel',serif;font-size:17px;color:var(--gold)">Share Your Gift!</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">Challenge your friends to discover theirs</div>
+    </div>
+    <div style="background:rgba(255,87,34,.08);border:1px solid rgba(255,87,34,.22);border-radius:11px;padding:13px;font-size:13px;color:#ddd4ff;line-height:1.7;margin-bottom:10px">
+      🔥 I discovered my Spiritual Gift is "<strong style="color:var(--gold)">${document.getElementById('r-name')?.textContent||''}</strong>" ${document.getElementById('r-icon')?.textContent||''}<br>
+      Score: <strong>${document.getElementById('r-score')?.textContent||'0'}</strong> pts | WOP 2026 — Gifts Unlocked!
+    </div>
+    <div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Game Link (tap to copy)</div>
+    <div class="share-box" onclick="cpURL('${url.replace(/'/g,'\\\'')}')">${url}<br><span style="font-size:10px;color:var(--muted);display:block;margin-top:3px">Tap to copy</span></div>
+    <div style="background:rgba(255,255,255,.04);border-radius:9px;padding:11px;font-size:12px;color:var(--muted);line-height:1.65;margin-bottom:12px">
+      <strong style="color:var(--spirit2)">📌 How to get a public link:</strong><br>
+      1. Download the HTML file from this chat<br>
+      2. Go to <strong style="color:var(--gold)">netlify.com/drop</strong><br>
+      3. Drag the file → get a free public link instantly!<br>
+      4. Share that link with everyone 🚀
+    </div>
+    <div style="display:flex;gap:7px">
+      <button class="btn btn-fire btn-sm" style="flex:1" onclick="cpMsg()">📋 Copy Message</button>
+      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="closeModal()">Done</button>
+    </div>`;
+  document.getElementById('modal-veil').classList.add('open');
+}
+function cpURL(u){navigator.clipboard.writeText(u).then(()=>toast('🔗 Link copied!'));}
+function cpMsg(){
+  const msg=`🔥 I discovered my Spiritual Gift is "${document.getElementById('r-name')?.textContent}" — WOP 2026!\nScore: ${document.getElementById('r-score')?.textContent} pts\n\nDiscover yours 👇\n${location.href}\n\n#GiftsUnlocked #SpiritualGiftsInAction #WOP2026`;
+  navigator.clipboard.writeText(msg).then(()=>{toast('📋 Message copied!');setTimeout(closeModal,500);});
+  if(navigator.share)navigator.share({text:msg,url:location.href}).catch(()=>{});
+}
+
+/* ── ADMIN ── */
+async function openAdmin(){
+  const code=prompt('Enter admin code:');if(!code)return;
+  if(code!=='wop2026admin'){toast('❌ Wrong code');return;}
+  let entries=[];
+  try{const res=await window.storage.list('wop:',true);for(const k of(res?.keys||[])){try{const r=await window.storage.get(k,true);if(r?.value)entries.push(JSON.parse(r.value));}catch(e){}}}catch(e){}
+  const dist={};GIFTS.forEach(g=>dist[g.id]=0);
+  entries.forEach(e=>{const g=GIFTS.find(x=>x.name===e.gift);if(g)dist[g.id]++;});
+  const maxD=Math.max(...Object.values(dist),1);
+  const avg=entries.length?Math.round(entries.reduce((a,b)=>a+(b.score||0),0)/entries.length):0;
+  document.getElementById('modal-body').innerHTML=`
+    <div style="font-family:'Cinzel',serif;font-size:17px;color:var(--gold);text-align:center;margin-bottom:14px">⚙️ Admin Dashboard</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:14px;text-align:center">
+      ${[['Players',entries.length],['Avg Score',avg.toLocaleString()],['Total XP',entries.reduce((a,b)=>a+(b.xp||0),0).toLocaleString()]].map(([l,v])=>`<div style="background:rgba(255,255,255,.04);border-radius:10px;padding:12px"><div style="font-family:'Cinzel',serif;font-size:24px;color:var(--gold)">${v}</div><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px">${l}</div></div>`).join('')}
+    </div>
+    <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:7px">Gift Distribution</div>
+    ${GIFTS.map(g=>`<div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;font-size:11px"><div style="width:84px;color:#ccc4f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${g.icon} ${g.name}</div><div style="flex:1;height:6px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden"><div style="height:100%;border-radius:99px;background:linear-gradient(90deg,var(--spirit),var(--fire));width:${Math.round(dist[g.id]/maxD*100)}%"></div></div><div style="width:18px;text-align:right;font-weight:700;color:var(--gold)">${dist[g.id]}</div></div>`).join('')}
+    <div style="margin-top:12px;font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:7px">Recent Players</div>
+    ${entries.slice(-8).reverse().map(e=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px"><span>${esc(e.name)}</span><span style="color:var(--muted)">${e.icon||''} ${esc(e.gift||'—')}</span><span style="color:var(--gold);font-weight:700">${(e.score||0).toLocaleString()}</span></div>`).join('')||'<div style="color:var(--muted);text-align:center;padding:8px">No players yet</div>'}
+    <button class="btn btn-ghost btn-sm" style="width:100%;margin-top:12px" onclick="closeModal()">Close</button>`;
+  document.getElementById('modal-veil').classList.add('open');
+}
+
+/* ── UTILS ── */
+function closeModal(){document.getElementById('modal-veil').classList.remove('open');}
+function restart(){S.done=false;S.flipped=false;document.getElementById('flip-inner').classList.remove('flipped');document.getElementById('before-flip').style.display='';document.getElementById('after-flip').style.display='none';goScene('s-title');document.getElementById('hud').classList.remove('show');}
+function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
+function xpPop(txt){const d=document.createElement('div');d.className='xp-pop';d.style.cssText=`top:${65+Math.random()*50}px;right:${12+Math.random()*55}px`;d.textContent=txt;document.body.appendChild(d);setTimeout(()=>d.remove(),1250);}
+function blast(txt){const d=document.createElement('div');d.className='blast';d.textContent=txt;document.body.appendChild(d);setTimeout(()=>d.remove(),1000);}
+function toast(msg){document.querySelectorAll('.toast').forEach(t=>t.remove());const d=document.createElement('div');d.className='toast';d.innerHTML=`<span>${msg}</span>`;document.body.appendChild(d);setTimeout(()=>d.remove(),2650);}
+</script>
+</body>
+</html>
